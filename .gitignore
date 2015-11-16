@@ -1,0 +1,4 @@
+.vagrant/
+gin-bin
+node_modules/
+assets/vendor/
