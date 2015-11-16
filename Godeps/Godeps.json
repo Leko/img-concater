@@ -55,6 +55,10 @@
 			"Rev": "40e4aedc8fabf8c23e040057540867186712faa5"
 		},
 		{
+			"ImportPath": "github.com/qor/inflection",
+			"Rev": "3272df6c21d04180007eb3349844c89a3856bc25"
+		},
+		{
 			"ImportPath": "github.com/soveran/redisurl",
 			"Rev": "ac42ec99510b5f21d11560d316adcc5bc41f0915"
 		},

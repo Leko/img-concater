@@ -1,30 +1,56 @@
 {{template "header.tpl" .}}
 
-<h1>Go demo application</h1>
+<h1>画像くっつけるツール</h1>
 
-<a href="/login">Login</a> or <a href="/register">Register</a>
+<div class="col-md-3">
+  <p>画像URLを入力して下さい。<br>上から順に画像を結合します。</p>
 
-<h2>Usage</h2>
-<ol>
-	<li>{{if .user.ID}}<span class="text-success">✓</span>{{end}} <a href="/register">Register</a>, Please enter your email and password.</li>
-	<li>{{if .user.ID}}<span class="text-success">✓</span>{{end}} <a href="/login">Login</a>, Enter same email and password.</li>
-</ol>
+  <div id="resource-urls">
+    <div class="form-group">
+      <label for="">画像URL1</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL2</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL3</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL4</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL5</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+  </div>
 
-{{if .user.ID}}
-<div class="alert alert-warning">
-	<dl>
-		<dt>Email</dt>
-		<dd>{{.user.Email}}</dd>
+  <div class="clearfix">
+    <div class="pull-right">
+      <button id="more" class="btn btn-primary">+</button>
+    </div>
+  </div>
 
-		<dt>Password(Hashed)</dt>
-		<dd>{{.user.Password}}</dd>
+  <h3>設定</h3>
+  <form class="form-inline">
+    <div class="form-group form-group-sm">
+      <div class="col-sm-6">
+        <label for="each-padding">画像と画像の余白</label>
+      </div>
+      <div class="input-group col-sm-6">
+        <input type="text" class="form-control" id="each-padding" placeholder="0">
+        <div class="input-group-addon">px</div>
+      </div>
+    </div>
+  </form>
 
-		<dt>CreatedAt</dt>
-		<dd>{{.user.CreatedAt}}</dd>
-	</dl>
-
-	<a href="/logout" class="btn btn-primary">Log out</a>
 </div>
-{{end}}
+
+<div class="col-md-9">
+  <canvas id="preview"></canvas>
+</div>
 
 {{template "footer.tpl" .}}
