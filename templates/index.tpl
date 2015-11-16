@@ -3,7 +3,7 @@
 <h1>画像くっつけるツール</h1>
 
 <div class="col-md-3">
-  <p>画像URLを入力して下さい。<br>上から順に画像を結合します。</p>
+  <p>画像URLを入力して下さい。上から順に画像を結合します。<br>画像を右クリックしてダウンロードできます</p>
 
   <div id="resource-urls">
     <div class="form-group">
@@ -26,6 +26,26 @@
       <label for="">画像URL5</label>
       <input type="text" class="form-control resource-url">
     </div>
+    <div class="form-group">
+      <label for="">画像URL6</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL7</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL8</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL9</label>
+      <input type="text" class="form-control resource-url">
+    </div>
+    <div class="form-group">
+      <label for="">画像URL10</label>
+      <input type="text" class="form-control resource-url">
+    </div>
   </div>
 
   <div class="clearfix">
@@ -41,7 +61,7 @@
         <label for="each-padding">画像と画像の余白</label>
       </div>
       <div class="input-group col-sm-6">
-        <input type="text" class="form-control" id="each-padding" placeholder="0">
+        <input type="number" class="form-control" id="each-padding" placeholder="0">
         <div class="input-group-addon">px</div>
       </div>
     </div>
@@ -50,7 +70,10 @@
 </div>
 
 <div class="col-md-9">
-  <canvas id="preview"></canvas>
+  <div id="preview-wrap">
+    <canvas id="preview"></canvas>
+    <canvas id="guide"></canvas>
+  </div>
 </div>
 
 {{template "footer.tpl" .}}
