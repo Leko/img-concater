@@ -10,7 +10,15 @@ function uid() {
 class Img {
   constructor() {
     this.uid = uid();
-    this.source = null;
+    this.blob = null;
+  }
+
+  ready() {
+    return (this.blob === null);
+  }
+
+  set(blob) {
+    this.blob = blob;
   }
 }
 
@@ -19,11 +27,26 @@ var ImageItem = React.createClass({
     return {
       url: null,
       source: null,
+      error: null,
     };
   },
 
   handleClose: function() {
     this.props.onClose(this.props.img);
+  },
+
+  handleUrlChange: function(event) {
+    this.setState({url: event.target.value});
+  },
+
+  handleFileChange: function(event) {
+    var r = new FileReader();
+    var file = event.target.files[0];
+
+    r.onload = (e) => {
+      this.props.img.set(e.target.result);
+    };
+    r.readAsBinaryString(file);
   },
 
   render: function() {
@@ -34,7 +57,12 @@ var ImageItem = React.createClass({
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <label>画像{this.props.index}</label>
+        <label>
+          画像{this.props.index}
+          {this.state.error
+            ? <span className="text-danger">: {this.state.error}</span>
+            : ''}
+        </label>
         <ul className="nav nav-tabs nav-justified" role="tablist">
           <li role="presentation" className="active">
             <a href={"#via-url-" + this.props.index} aria-controls="via-url" role="tab" data-toggle="tab">URL</a>
@@ -46,10 +74,10 @@ var ImageItem = React.createClass({
 
         <div className="tab-content">
           <div role="tabpanel" className="tab-pane active" id={"via-url-" + this.props.index}>
-            <input type="text" className="form-control resource-url" placeholder="http://example.com..." />
+            <input type="text" className="form-control resource-url" placeholder="http://example.com..." onChange={this.handleUrlChange} />
           </div>
           <div role="tabpanel" className="tab-pane" id={"via-file-" + this.props.index}>
-            <input type="file" className="resource-file" placeholder="http://example.com..." />
+            <input type="file" className="resource-file" placeholder="http://example.com..." onChange={this.handleFileChange} />
           </div>
         </div>
         <hr/>
