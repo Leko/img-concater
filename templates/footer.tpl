@@ -79,5 +79,7 @@
 // guide.stroke();
 // guide.fillText(MAX_HEIGHT + 'px', 10, MAX_HEIGHT + 15);
   </script>
+  <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </body>
 </html>
