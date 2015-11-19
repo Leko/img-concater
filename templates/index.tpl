@@ -70,6 +70,15 @@
 </div>
 
 <div class="col-md-9">
+  <h2>
+    プレビュー
+    <div class="pull-right">
+      <button id="download" class="btn btn-default">
+        ダウンロードする
+        <i class="glyphicon glyphicon-download-alt"></i>
+      </button>
+    </div>
+  </h2>
   <div id="preview-wrap">
     <canvas id="preview"></canvas>
     <canvas id="guide"></canvas>
