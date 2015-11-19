@@ -20,13 +20,26 @@ class Img {
   set(blob) {
     this.blob = blob;
   }
+
+  fetch(url) {
+    return new Promise((resolve, reject) => {
+      superagent.get('/proxy')
+        .query({url: url})
+        .on('error', reject)
+        .end((err, res) => {
+          if(err !== null) {
+            reject(err);
+          }
+
+          resolve(res.body);
+        });
+    });
+  }
 }
 
 var ImageItem = React.createClass({
   getInitialState: function() {
     return {
-      url: null,
-      source: null,
       error: null,
     };
   },
@@ -36,7 +49,14 @@ var ImageItem = React.createClass({
   },
 
   handleUrlChange: function(event) {
-    this.setState({url: event.target.value});
+    var url = event.target.value;
+    this.props.img.fetch(url)
+      .then((obj) => {
+        console.log('OK:', obj);
+      })
+      .catch((obj) => {
+        console.log('ERROR:', obj);
+      });
   },
 
   handleFileChange: function(event) {

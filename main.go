@@ -12,6 +12,10 @@ import (
 
 const defaultPort = "8080"
 
+type Image struct {
+	Url string `json:"url" form:"url" bindings:"required"`
+}
+
 func main() {
 	migrate()
 
@@ -23,6 +27,13 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 
 	router.GET("/", controller.Users.Top)
+
+	router.GET("/proxy", func(c *gin.Context) {
+		var img Image
+		if c.Bind(&img) == nil {
+			c.JSON(http.StatusOK, img)
+		}
+	})
 
 	http.ListenAndServe(":"+port(), nosurf.New(router))
 }

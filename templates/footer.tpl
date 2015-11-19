@@ -3,6 +3,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/superagent/1.2.0/superagent.min.js"></script>
   <script type="text/babel" src="/js/app.jsx"></script>
   <script>
 // var MAX_WIDTH = 640;
