@@ -18,18 +18,10 @@ func main() {
 	router := gin.Default()
 
 	router.Static("/css", "./assets/dist/css")
+	router.Static("/fonts", "./assets/fonts")
 	router.LoadHTMLGlob("templates/*")
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
-
 	router.GET("/", controller.Users.Top)
-	router.GET("/login", controller.Users.Login)
-	router.GET("/logout", controller.Users.Logout)
-	router.GET("/register", controller.Users.Register)
-	router.POST("/authenticate", controller.Users.Authenticate)
-	router.POST("/users/create", controller.Users.Create)
 
 	http.ListenAndServe(":"+port(), nosurf.New(router))
 }
