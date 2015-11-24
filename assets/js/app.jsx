@@ -49,10 +49,16 @@ class ImgEntity {
 
   /**
    * @param Blob blob image binary
+   * @return Promise resolve:img load complete, reject:onerror
    */
   set(blob) {
     this.blob = blob;
     this.img.src = window.URL.createObjectURL(blob);
+
+    return new Promise((resolve, reject) => {
+      this.img.onload = resolve;
+      this.img.onerror = reject;
+    });
   }
 
   /**
@@ -82,6 +88,38 @@ class ImgEntity {
   }
 }
 
+class FormGroup extends React.Component {
+  render() {
+    var urlClasses = ['form-group'];
+
+    if(this.props.error) {
+      urlClasses.push('has-feedback');
+      urlClasses.push('has-error');
+    }
+    if(this.props.success) {
+      urlClasses.push('has-feedback');
+      urlClasses.push('has-success');
+    }
+
+    return (
+      <div className={urlClasses.join(' ')}>
+        {this.props.children}
+        {this.props.error
+          ? (<p className="help-block">
+              <span className="text-danger">{this.props.error}</span>
+            </p>)
+          : ''}
+        {this.props.error
+          ? <span className="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+          : ''}
+        {this.props.success
+          ? <span className="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          : ''}
+      </div>
+    );
+  }
+}
+
 /**
  * @class ImageItem
  */
@@ -107,14 +145,27 @@ class ImageItem extends React.Component {
    * @param Event event Event object
    */
   handleUrlChange(event) {
+    if(!event.target.checkValidity()) {
+      this.setState({ error: '画像のURLを入力して下さい' });
+      return;
+    }
+
     var url = event.target.value;
     this.props.img.fetch(url)
       .then((res) => {
         var blob = new Blob([res.response], { type: res.getResponseHeader('Content-Type') });
-        this.props.img.set(blob);
+        this.props.img.set(blob)
+          .then(() => {
+            this.setState({completed: true, error: ''});
+          })
+          .catch((e) => {
+            this.setState({completed: false, error: '画像の読込に失敗しました'});
+          });
+
+        this.setState({error: ''});
       })
       .catch((err) => {
-        this.setState({error: err});
+        this.setState({error: err.message});
       });
   }
 
@@ -127,7 +178,14 @@ class ImageItem extends React.Component {
 
     r.onload = (e) => {
       var blob = new Blob([e.target.result], { type: file.type });
-      this.props.img.set(blob);
+      this.props.img.set(blob)
+        .then(() => {
+          this.setState({completed: true, error: ''});
+        })
+        .catch((e) => {
+          this.setState({completed: false, error: '画像の読込に失敗しました'});
+        });
+
     };
     r.readAsArrayBuffer(file);
   }
@@ -136,6 +194,17 @@ class ImageItem extends React.Component {
    * @return ReactElements
    */
   render() {
+    var urlClasses = ['form-group'];
+
+    if(this.state.error) {
+      urlClasses.push('has-feedback');
+      urlClasses.push('has-error');
+    }
+    if(this.state.completed) {
+      urlClasses.push('has-feedback');
+      urlClasses.push('has-success');
+    }
+
     return (
       <li>
         <div className="pull-right">
@@ -143,12 +212,7 @@ class ImageItem extends React.Component {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <label>
-          画像{this.props.index}
-          {this.state.error
-            ? <span className="text-danger">: {this.state.error}</span>
-            : ''}
-        </label>
+        <label>画像{this.props.index}</label>
         <ul className="nav nav-tabs nav-justified" role="tablist">
           <li role="presentation" className="active">
             <a href={"#via-url-" + this.props.index} aria-controls="via-url" role="tab" data-toggle="tab">URL</a>
@@ -160,10 +224,14 @@ class ImageItem extends React.Component {
 
         <div className="tab-content">
           <div role="tabpanel" className="tab-pane active" id={"via-url-" + this.props.index}>
-            <input type="text" className="form-control resource-url" placeholder="http://example.com..." onChange={this.handleUrlChange.bind(this)} />
+            <FormGroup error={this.state.error} success={this.state.completed}>
+              <input type="url" className="form-control" placeholder="http://example.com..." onChange={this.handleUrlChange.bind(this)} required />
+            </FormGroup>
           </div>
           <div role="tabpanel" className="tab-pane" id={"via-file-" + this.props.index}>
-            <input type="file" className="resource-file" placeholder="http://example.com..." onChange={this.handleFileChange.bind(this)} />
+            <FormGroup error={this.state.error} success={this.state.completed}>
+              <input type="file" onChange={this.handleFileChange.bind(this)} required />
+            </FormGroup>
           </div>
         </div>
         <hr/>
