@@ -195,7 +195,6 @@ class Preview extends React.Component {
 
         var mag = Guide.MAX_WIDTH / imgEntity.img.width;
 
-        $('body').append(imgEntity.img);
         ctx.drawImage(imgEntity.img, 0, offset, Guide.MAX_WIDTH, imgEntity.img.height * mag);
         offset += (imgEntity.img.height * mag) + padding;
       });
