@@ -30,8 +30,8 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "react": "^0.13.0",
-    "superagent": "^1.4.0",
-    "react-canvas": "0.0.1"
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "superagent": "^1.4.0"
   }
 }
