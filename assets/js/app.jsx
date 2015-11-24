@@ -16,6 +16,9 @@ function uid() {
   return uid._idx++;
 }
 
+/**
+ * @class ImgEntity
+ */
 class ImgEntity {
   constructor() {
     this.uid = uid();
@@ -56,6 +59,9 @@ class ImgEntity {
   }
 }
 
+/**
+ * @class ImageItem
+ */
 class ImageItem extends React.Component {
   constructor(props) {
     super(props);
@@ -128,6 +134,9 @@ class ImageItem extends React.Component {
   }
 }
 
+/**
+ * @class Preview
+ */
 class Preview extends React.Component {
   constructor(props) {
     super(props);
@@ -153,6 +162,9 @@ class Preview extends React.Component {
   }
 }
 
+/**
+ * @class Guide
+ */
 class Guide extends React.Component {
   constructor(props) {
     super(props);
@@ -198,6 +210,9 @@ class Guide extends React.Component {
 Guide.MAX_WIDTH = 640;
 Guide.MAX_HEIGHT = 1200;
 
+/**
+ * @class App
+ */
 class App extends React.Component {
   constructor(props) {
     super(props);
