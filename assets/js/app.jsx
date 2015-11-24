@@ -30,7 +30,7 @@ class ImgEntity {
    * @return bool true:ready, false:not ready
    */
   ready() {
-    return (this.blob === null || this.width < 0 || this.height < 0);
+    return ((this.blob !== null) && this.img.src && this.img.complete);
   }
 
   /**
@@ -58,16 +58,15 @@ class ImgEntity {
    */
   fetch(url) {
     return new Promise((resolve, reject) => {
-      superagent.get('/proxy')
-        .query({url: url})
-        .on('error', reject)
-        .end((err, res) => {
-          if(err !== null || res.type.indexOf('image/') < 0) {
-            reject(err);
-          }
+      var xhr = new XMLHttpRequest();
 
-          resolve(res);
-        });
+      xhr.open('GET', '/proxy?url=' + encodeURIComponent(url), true);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function(e) {
+        resolve(this);
+      };
+      xhr.onerror = reject;
+      xhr.send();
     });
   }
 }
@@ -100,7 +99,7 @@ class ImageItem extends React.Component {
     var url = event.target.value;
     this.props.img.fetch(url)
       .then((res) => {
-        var blob = new Blob([res.text], { type: res.type });
+        var blob = new Blob([res.response], { type: res.getResponseHeader('Content-Type') });
         this.props.img.set(blob);
       })
       .catch((err) => {
@@ -119,7 +118,7 @@ class ImageItem extends React.Component {
       var blob = new Blob([e.target.result], { type: file.type });
       this.props.img.set(blob);
     };
-    r.readAsBinaryString(file);
+    r.readAsArrayBuffer(file);
   }
 
   /**
@@ -150,10 +149,10 @@ class ImageItem extends React.Component {
 
         <div className="tab-content">
           <div role="tabpanel" className="tab-pane active" id={"via-url-" + this.props.index}>
-            <input type="text" className="form-control resource-url" placeholder="http://example.com..." onChange={this.handleUrlChange} />
+            <input type="text" className="form-control resource-url" placeholder="http://example.com..." onChange={this.handleUrlChange.bind(this)} />
           </div>
           <div role="tabpanel" className="tab-pane" id={"via-file-" + this.props.index}>
-            <input type="file" className="resource-file" placeholder="http://example.com..." onChange={this.handleFileChange} />
+            <input type="file" className="resource-file" placeholder="http://example.com..." onChange={this.handleFileChange.bind(this)} />
           </div>
         </div>
         <hr/>
@@ -186,7 +185,34 @@ class Preview extends React.Component {
 
     this.setState({ width: w, height: h });
 
-    this.refs.imageList
+    setTimeout(this.draw.bind(this, 0));
+  }
+
+  draw(padding) {
+    padding = padding || 0;
+
+    var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
+    var offset = 0;
+    var height = this.props.images.reduce(function(memo, img) {
+      var mag = Guide.MAX_WIDTH / img.width;
+      return memo + (img.height * mag) + padding;
+    }, 0);
+
+    ctx.clearRect(0, 0, $(this.refs.imageList).width(), $(this.refs.imageList).height());
+    this.props.images.forEach(function(imgEntity, i) {
+      console.log(i, imgEntity, imgEntity.ready());
+      if(!imgEntity.ready()) return;
+
+      var mag = Guide.MAX_WIDTH / imgEntity.img.width;
+
+      $('body').append(imgEntity.img);
+      ctx.drawImage(imgEntity.img, 0, offset, Guide.MAX_WIDTH, imgEntity.img.height * mag);
+      offset += (imgEntity.img.height * mag) + padding;
+    });
+
+    if(height - padding > Guide.MAX_HEIGHT) {
+      alert('画像が1200pxより大きいです。赤線を確認して下さい');
+    }
   }
 
   /**
@@ -290,6 +316,10 @@ class App extends React.Component {
     this.setState({images: copy});
   }
 
+  handleRefresh() {
+    this.refs.preview.draw();
+  }
+
   /**
    * @return ReactElements
    */
@@ -328,6 +358,9 @@ class App extends React.Component {
           <h2>
             プレビュー
             <div className="pull-right">
+              <button id="refresh" className="btn btn-default" onClick={this.handleRefresh.bind(this)}>
+                <i className="glyphicon glyphicon-refresh"></i>
+              </button>
               <button id="download" className="btn btn-default">
                 ダウンロードする
                 <i className="glyphicon glyphicon-download-alt"></i>
@@ -335,7 +368,7 @@ class App extends React.Component {
             </div>
           </h2>
           <div id="preview-wrap">
-            <Preview />
+            <Preview images={this.state.images} ref="preview" />
             <Guide id={uid()} />
           </div>
         </div>
