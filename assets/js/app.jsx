@@ -16,6 +16,20 @@ function uid() {
   return uid._idx++;
 }
 
+class Downloader {
+  static download(uri, fileName) {
+    var pseudoLink = document.createElement('a');
+
+    if(fileName) {
+      pseudoLink.download = 'image.jpg';
+    }
+
+    pseudoLink.target = '_blank';
+    pseudoLink.href = uri;
+    pseudoLink.click();
+  }
+}
+
 /**
  * @class ImgEntity
  */
@@ -312,7 +326,11 @@ class App extends React.Component {
 
   handleExport() {
     var canvas = ReactDOM.findDOMNode(this.refs.preview);
-    console.log(canvas);
+    var type = 'image/jpeg';
+    var url = canvas.toDataURL(type);
+
+    // 新窓でかつファイル名を指定するには擬似的にAタグをクリックするしか無い・・・？
+    Downloader.download(url, 'image.jpg');
   }
 
   /**
