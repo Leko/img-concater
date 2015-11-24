@@ -208,7 +208,7 @@ class ImageItem extends React.Component {
     return (
       <li>
         <div className="pull-right">
-          <button type="button" className="close" aria-label="Close" onClick={this.handleClose}>
+          <button type="button" className="close" aria-label="Close" onClick={this.handleClose.bind(this)}>
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -268,23 +268,31 @@ class Preview extends React.Component {
     }, 0);
 
     this.setState({ width: Guide.MAX_WIDTH, height: height });
-    setTimeout(() => {
-      var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
 
-      ctx.clearRect(0, 0, Guide.MAX_WIDTH, height);
-      this.props.images.forEach(function(imgEntity, i) {
-        if(!imgEntity.ready()) return;
+          ctx.clearRect(0, 0, Guide.MAX_WIDTH, height);
+          this.props.images.forEach(function(imgEntity, i) {
+            if(!imgEntity.ready()) return;
 
-        var mag = Guide.MAX_WIDTH / imgEntity.img.width;
+            var mag = Guide.MAX_WIDTH / imgEntity.img.width;
 
-        ctx.drawImage(imgEntity.img, 0, offset, Guide.MAX_WIDTH, imgEntity.img.height * mag);
-        offset += (imgEntity.img.height * mag) + padding;
-      });
+            ctx.drawImage(imgEntity.img, 0, offset, Guide.MAX_WIDTH, imgEntity.img.height * mag);
+            offset += (imgEntity.img.height * mag) + padding;
+          });
 
-      if(height - padding > Guide.MAX_HEIGHT) {
-        alert('画像が1200pxより大きいです。赤線を確認して下さい');
-      }
-    }, 0);
+          if(height - padding > Guide.MAX_HEIGHT) {
+            alert('画像が1200pxより大きいです。赤線を確認して下さい');
+          }
+
+          resolve();
+        } catch(e) {
+          reject(e);
+        }
+      }, 0);
+    });
   }
 
   /**
@@ -320,26 +328,30 @@ class Guide extends React.Component {
     var h = 2000;
 
     this.setState({ width: w, height: h });
+  }
 
-    // setState後の再描画は非同期なのでこっちも非同期化して処理キューに詰める
-    setTimeout(() => {
-      var ctx = this.refs.canvas.getContext('2d');
-      ctx.beginPath();
-      ctx.moveTo(Guide.MAX_WIDTH, 0);
-      ctx.lineTo(Guide.MAX_WIDTH, h);
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillText(Guide.MAX_WIDTH + 'px', Guide.MAX_WIDTH + 5, 20);
+  componentDidUpdate() {
+    this.draw();
+  }
 
-      ctx.beginPath();
-      ctx.moveTo(0, Guide.MAX_HEIGHT);
-      ctx.lineTo(w, Guide.MAX_HEIGHT);
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillText(Guide.MAX_HEIGHT + 'px', 10, Guide.MAX_HEIGHT + 15);
-    });
+  draw() {
+    var el = ReactDOM.findDOMNode(this.refs.canvas);
+    var ctx = this.refs.canvas.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(Guide.MAX_WIDTH, 0);
+    ctx.lineTo(Guide.MAX_WIDTH, el.height);
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillText(Guide.MAX_WIDTH + 'px', Guide.MAX_WIDTH + 5, 20);
+
+    ctx.beginPath();
+    ctx.moveTo(0, Guide.MAX_HEIGHT);
+    ctx.lineTo(el.width, Guide.MAX_HEIGHT);
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillText(Guide.MAX_HEIGHT + 'px', 10, Guide.MAX_HEIGHT + 15);
   }
 
   /**
@@ -393,12 +405,16 @@ class App extends React.Component {
   }
 
   handleExport() {
-    var canvas = ReactDOM.findDOMNode(this.refs.preview);
-    var type = 'image/jpeg';
-    var url = canvas.toDataURL(type);
+    // 強制的に再描画をかけて再DL
+    this.refs.preview.draw()
+      .then(() => {
+        var canvas = ReactDOM.findDOMNode(this.refs.preview);
+        var type = 'image/jpeg';
+        var url = canvas.toDataURL(type);
 
-    // 新窓でかつファイル名を指定するには擬似的にAタグをクリックするしか無い・・・？
-    Downloader.download(url, 'image.jpg');
+        // 新窓でかつファイル名を指定するには擬似的にAタグをクリックするしか無い・・・？
+        Downloader.download(url, 'image.jpg');
+      });
   }
 
   /**
@@ -412,27 +428,14 @@ class App extends React.Component {
           <p>画像URLを入力して下さい。上から順に画像を結合します。</p>
 
           <ul id="resources">{this.state.images.map((img, i) => {
-            return (<ImageItem key={img.uid} img={img} index={i+1} onClose={this.handleClose} />);
+            return (<ImageItem key={img.uid} img={img} index={i+1} onClose={this.handleClose.bind(this)} />);
           })}</ul>
 
           <div className="clearfix">
             <div className="pull-right">
-              <button id="more" className="btn btn-primary" onClick={this.handleClick}>+</button>
+              <button id="more" className="btn btn-primary" onClick={this.handleClick.bind(this)}>+</button>
             </div>
           </div>
-
-          <h3>設定</h3>
-          <form className="form-inline">
-            <div className="form-group form-group-sm">
-              <div className="col-sm-6">
-                <label htmlFor="each-padding">画像と画像の余白</label>
-              </div>
-              <div className="input-group col-sm-6">
-                <input type="number" className="form-control" id="each-padding" placeholder="0" />
-                <div className="input-group-addon">px</div>
-              </div>
-            </div>
-          </form>
         </div>
 
         <div className="col-md-9">
