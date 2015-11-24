@@ -3,6 +3,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import superagent from 'superagent';
 
+/**
+ * Generate unique id
+ *
+ * @return int unique ID on opened page
+ */
 function uid() {
   if(typeof uid._idx === 'undefined') {
     uid._idx = 1;
