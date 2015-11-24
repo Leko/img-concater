@@ -38,9 +38,6 @@ class ImgEntity {
    */
   set(blob) {
     this.blob = blob;
-    this.img.onload = (e) => {
-      console.log(this.img);
-    };
     this.img.src = window.URL.createObjectURL(blob);
   }
 
@@ -176,43 +173,37 @@ class Preview extends React.Component {
     };
   }
 
-  /**
-   *
-   */
-  componentDidMount() {
-    var w = $('#preview-wrap').width();
-    var h = 2000;
-
-    this.setState({ width: w, height: h });
-
-    setTimeout(this.draw.bind(this, 0));
-  }
-
   draw(padding) {
     padding = padding || 0;
 
     var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
     var offset = 0;
-    var height = this.props.images.reduce(function(memo, img) {
-      var mag = Guide.MAX_WIDTH / img.width;
-      return memo + (img.height * mag) + padding;
-    }, 0);
-
-    ctx.clearRect(0, 0, $(this.refs.imageList).width(), $(this.refs.imageList).height());
-    this.props.images.forEach(function(imgEntity, i) {
-      console.log(i, imgEntity, imgEntity.ready());
-      if(!imgEntity.ready()) return;
+    var height = this.props.images.reduce(function(memo, imgEntity) {
+      if(!imgEntity.ready()) return memo;
 
       var mag = Guide.MAX_WIDTH / imgEntity.img.width;
+      return memo + (imgEntity.img.height * mag) + padding;
+    }, 0);
 
-      $('body').append(imgEntity.img);
-      ctx.drawImage(imgEntity.img, 0, offset, Guide.MAX_WIDTH, imgEntity.img.height * mag);
-      offset += (imgEntity.img.height * mag) + padding;
-    });
+    this.setState({ width: Guide.MAX_WIDTH, height: height });
+    setTimeout(() => {
+      var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
 
-    if(height - padding > Guide.MAX_HEIGHT) {
-      alert('画像が1200pxより大きいです。赤線を確認して下さい');
-    }
+      ctx.clearRect(0, 0, Guide.MAX_WIDTH, height);
+      this.props.images.forEach(function(imgEntity, i) {
+        if(!imgEntity.ready()) return;
+
+        var mag = Guide.MAX_WIDTH / imgEntity.img.width;
+
+        $('body').append(imgEntity.img);
+        ctx.drawImage(imgEntity.img, 0, offset, Guide.MAX_WIDTH, imgEntity.img.height * mag);
+        offset += (imgEntity.img.height * mag) + padding;
+      });
+
+      if(height - padding > Guide.MAX_HEIGHT) {
+        alert('画像が1200pxより大きいです。赤線を確認して下さい');
+      }
+    }, 0);
   }
 
   /**
@@ -320,6 +311,11 @@ class App extends React.Component {
     this.refs.preview.draw();
   }
 
+  handleExport() {
+    var canvas = ReactDOM.findDOMNode(this.refs.preview);
+    console.log(canvas);
+  }
+
   /**
    * @return ReactElements
    */
@@ -358,10 +354,10 @@ class App extends React.Component {
           <h2>
             プレビュー
             <div className="pull-right">
-              <button id="refresh" className="btn btn-default" onClick={this.handleRefresh.bind(this)}>
+              <button className="btn btn-default" onClick={this.handleRefresh.bind(this)}>
                 <i className="glyphicon glyphicon-refresh"></i>
               </button>
-              <button id="download" className="btn btn-default">
+              <button className="btn btn-default" onClick={this.handleExport.bind(this)}>
                 ダウンロードする
                 <i className="glyphicon glyphicon-download-alt"></i>
               </button>
