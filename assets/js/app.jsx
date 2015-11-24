@@ -1,8 +1,3 @@
-/**
- * - Babel, JSXをオンライン変換しているがローカルで変換しておいたものを使う
- * - Browserifyなど入れて別ファイル化
- * - ドキュメント拡充
- */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
