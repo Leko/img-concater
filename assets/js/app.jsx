@@ -26,10 +26,16 @@ class ImgEntity {
     this.img = new Image();
   }
 
+  /**
+   * @return bool true:ready, false:not ready
+   */
   ready() {
     return (this.blob === null || this.width < 0 || this.height < 0);
   }
 
+  /**
+   * @param Blob blob image binary
+   */
   set(blob) {
     this.blob = blob;
     this.img.onload = (e) => {
@@ -38,11 +44,18 @@ class ImgEntity {
     this.img.src = window.URL.createObjectURL(blob);
   }
 
+  /**
+   *
+   */
   destroy() {
     // http://hakuhin.jp/js/blob_url_scheme.html#BLOB_URL_SCHEME_01
     window.URL.createObjectURL(this.img.src);
   }
 
+  /**
+   * @param string url Image url
+   * @return Promise resolve:fetch complete, reject:fetch faulure
+   */
   fetch(url) {
     return new Promise((resolve, reject) => {
       superagent.get('/proxy')
@@ -63,6 +76,9 @@ class ImgEntity {
  * @class ImageItem
  */
 class ImageItem extends React.Component {
+  /**
+   * @param object props
+   */
   constructor(props) {
     super(props);
     this.state = {
@@ -70,10 +86,16 @@ class ImageItem extends React.Component {
     };
   }
 
+  /**
+   *
+   */
   handleClose() {
     this.props.onClose(this.props.img);
   }
 
+  /**
+   * @param Event event Event object
+   */
   handleUrlChange(event) {
     var url = event.target.value;
     this.props.img.fetch(url)
@@ -86,6 +108,9 @@ class ImageItem extends React.Component {
       });
   }
 
+  /**
+   * @param Event event Event object
+   */
   handleFileChange(event) {
     var r = new FileReader();
     var file = event.target.files[0];
@@ -97,6 +122,9 @@ class ImageItem extends React.Component {
     r.readAsBinaryString(file);
   }
 
+  /**
+   * @return ReactElements
+   */
   render() {
     return (
       <li>
@@ -138,6 +166,9 @@ class ImageItem extends React.Component {
  * @class Preview
  */
 class Preview extends React.Component {
+  /**
+   * @param object props
+   */
   constructor(props) {
     super(props);
     this.state = {
@@ -146,6 +177,9 @@ class Preview extends React.Component {
     };
   }
 
+  /**
+   *
+   */
   componentDidMount() {
     var w = $('#preview-wrap').width();
     var h = 2000;
@@ -155,6 +189,9 @@ class Preview extends React.Component {
     this.refs.imageList
   }
 
+  /**
+   * @return ReactElements
+   */
   render() {
     return (
       <canvas className="canvas-layer guide" ref="imageList" width={this.state.width} height={this.state.height}></canvas>
@@ -166,6 +203,9 @@ class Preview extends React.Component {
  * @class Guide
  */
 class Guide extends React.Component {
+  /**
+   * @param object props
+   */
   constructor(props) {
     super(props);
     this.state = {
@@ -174,6 +214,9 @@ class Guide extends React.Component {
     };
   }
 
+  /**
+   *
+   */
   componentDidMount() {
     var w = $('#preview-wrap').width();
     var h = 2000;
@@ -201,6 +244,9 @@ class Guide extends React.Component {
     });
   }
 
+  /**
+   * @return ReactElements
+   */
   render() {
     return (
       <canvas ref="canvas" key={this.props.id} width={this.state.width} height={this.state.height}></canvas>
@@ -214,6 +260,9 @@ Guide.MAX_HEIGHT = 1200;
  * @class App
  */
 class App extends React.Component {
+  /**
+   * @param object props
+   */
   constructor(props) {
     super(props);
     this.state = {
@@ -221,11 +270,18 @@ class App extends React.Component {
     };
   }
 
+  /**
+   * @return ReactElements
+   */
   handleClick() {
     var images = this.state.images.concat([new ImgEntity]);
     this.setState({images: images});
   }
 
+  /**
+   * @param ImageItem
+   * @return ReactElements
+   */
   handleClose(img) {
     var idx = this.state.images.indexOf(img);
     var copy = this.state.images.slice();
@@ -234,6 +290,9 @@ class App extends React.Component {
     this.setState({images: copy});
   }
 
+  /**
+   * @return ReactElements
+   */
   render() {
     // FIXME: split component
     return (
