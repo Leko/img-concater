@@ -1,10 +1,9 @@
   </div><!-- .container-fluid -->
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/superagent/1.2.0/superagent.min.js"></script>
-  <script type="text/babel" src="/js/app.jsx"></script>
+  <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+  <script src="/js/bundle.js"></script>
   <script>
 // var MAX_WIDTH = 640;
 // var MAX_HEIGHT = 1200;
@@ -80,7 +79,5 @@
 // guide.stroke();
 // guide.fillText(MAX_HEIGHT + 'px', 10, MAX_HEIGHT + 15);
   </script>
-  <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </body>
 </html>

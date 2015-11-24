@@ -1,3 +1,12 @@
+/**
+ * - Babel, JSXをオンライン変換しているがローカルで変換しておいたものを使う
+ * - Browserifyなど入れて別ファイル化
+ * - ドキュメント拡充
+ */
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import superagent from 'superagent';
 
 function uid() {
   if(typeof uid._idx === 'undefined') {
@@ -7,18 +16,28 @@ function uid() {
   return uid._idx++;
 }
 
-class Img {
+class ImgEntity {
   constructor() {
     this.uid = uid();
     this.blob = null;
+    this.img = new Image();
   }
 
   ready() {
-    return (this.blob === null);
+    return (this.blob === null || this.width < 0 || this.height < 0);
   }
 
   set(blob) {
     this.blob = blob;
+    this.img.onload = (e) => {
+      console.log(this.img);
+    };
+    this.img.src = window.URL.createObjectURL(blob);
+  }
+
+  destroy() {
+    // http://hakuhin.jp/js/blob_url_scheme.html#BLOB_URL_SCHEME_01
+    window.URL.createObjectURL(this.img.src);
   }
 
   fetch(url) {
@@ -27,49 +46,52 @@ class Img {
         .query({url: url})
         .on('error', reject)
         .end((err, res) => {
-          if(err !== null) {
+          if(err !== null || res.type.indexOf('image/') < 0) {
             reject(err);
           }
 
-          resolve(res.body);
+          resolve(res);
         });
     });
   }
 }
 
-var ImageItem = React.createClass({
-  getInitialState: function() {
-    return {
+class ImageItem extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       error: null,
     };
-  },
+  }
 
-  handleClose: function() {
+  handleClose() {
     this.props.onClose(this.props.img);
-  },
+  }
 
-  handleUrlChange: function(event) {
+  handleUrlChange(event) {
     var url = event.target.value;
     this.props.img.fetch(url)
-      .then((obj) => {
-        console.log('OK:', obj);
+      .then((res) => {
+        var blob = new Blob([res.text], { type: res.type });
+        this.props.img.set(blob);
       })
-      .catch((obj) => {
-        console.log('ERROR:', obj);
+      .catch((err) => {
+        this.setState({error: err});
       });
-  },
+  }
 
-  handleFileChange: function(event) {
+  handleFileChange(event) {
     var r = new FileReader();
     var file = event.target.files[0];
 
     r.onload = (e) => {
-      this.props.img.set(e.target.result);
+      var blob = new Blob([e.target.result], { type: file.type });
+      this.props.img.set(blob);
     };
     r.readAsBinaryString(file);
-  },
+  }
 
-  render: function() {
+  render() {
     return (
       <li>
         <div className="pull-right">
@@ -104,29 +126,100 @@ var ImageItem = React.createClass({
       </li>
     );
   }
-});
+}
 
-var App = React.createClass({
-  getInitialState: function() {
-    return {
-      images: [new Img, new Img, new Img, ],
+class Preview extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      width: 0,
+      height: 0,
     };
-  },
+  }
 
-  handleClick: function() {
-    var images = this.state.images.concat([new Img]);
+  componentDidMount() {
+    var w = $('#preview-wrap').width();
+    var h = 2000;
+
+    this.setState({ width: w, height: h });
+
+    this.refs.imageList
+  }
+
+  render() {
+    return (
+      <canvas className="canvas-layer guide" ref="imageList" width={this.state.width} height={this.state.height}></canvas>
+    );
+  }
+}
+
+class Guide extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      width: 0,
+      height: 0,
+    };
+  }
+
+  componentDidMount() {
+    var w = $('#preview-wrap').width();
+    var h = 2000;
+
+    this.setState({ width: w, height: h });
+
+    // setState後の再描画は非同期なのでこっちも非同期化して処理キューに詰める
+    setTimeout(() => {
+      var ctx = this.refs.canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.moveTo(Guide.MAX_WIDTH, 0);
+      ctx.lineTo(Guide.MAX_WIDTH, h);
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillText(Guide.MAX_WIDTH + 'px', Guide.MAX_WIDTH + 5, 20);
+
+      ctx.beginPath();
+      ctx.moveTo(0, Guide.MAX_HEIGHT);
+      ctx.lineTo(w, Guide.MAX_HEIGHT);
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillText(Guide.MAX_HEIGHT + 'px', 10, Guide.MAX_HEIGHT + 15);
+    });
+  }
+
+  render() {
+    return (
+      <canvas ref="canvas" key={this.props.id} width={this.state.width} height={this.state.height}></canvas>
+    );
+  }
+}
+Guide.MAX_WIDTH = 640;
+Guide.MAX_HEIGHT = 1200;
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      images: [new ImgEntity, new ImgEntity, new ImgEntity, ],
+    };
+  }
+
+  handleClick() {
+    var images = this.state.images.concat([new ImgEntity]);
     this.setState({images: images});
-  },
+  }
 
-  handleClose: function(img) {
+  handleClose(img) {
     var idx = this.state.images.indexOf(img);
     var copy = this.state.images.slice();
     copy.splice(idx, 1);
 
     this.setState({images: copy});
-  },
+  }
 
-  render: function() {
+  render() {
     // FIXME: split component
     return (
       <div className="row">
@@ -147,7 +240,7 @@ var App = React.createClass({
           <form className="form-inline">
             <div className="form-group form-group-sm">
               <div className="col-sm-6">
-                <label for="each-padding">画像と画像の余白</label>
+                <label htmlFor="each-padding">画像と画像の余白</label>
               </div>
               <div className="input-group col-sm-6">
                 <input type="number" className="form-control" id="each-padding" placeholder="0" />
@@ -168,14 +261,14 @@ var App = React.createClass({
             </div>
           </h2>
           <div id="preview-wrap">
-            <canvas id="preview"></canvas>
-            <canvas id="guide"></canvas>
+            <Preview />
+            <Guide id={uid()} />
           </div>
         </div>
       </div>
     );
   }
-});
+}
 
 ReactDOM.render(
   <App/>,

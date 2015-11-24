@@ -6,6 +6,7 @@ import (
 	"godemo/controller"
 	"godemo/database"
 	"godemo/model"
+	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -22,7 +23,7 @@ func main() {
 	router := gin.Default()
 
 	router.Static("/css", "./assets/dist/css")
-	router.Static("/js", "./assets/js")
+	router.Static("/js", "./assets/dist/js")
 	router.Static("/fonts", "./assets/fonts")
 	router.LoadHTMLGlob("templates/*")
 
@@ -30,8 +31,16 @@ func main() {
 
 	router.GET("/proxy", func(c *gin.Context) {
 		var img Image
-		if c.Bind(&img) == nil {
-			c.JSON(http.StatusOK, img)
+		if c.Bind(&img) != nil {
+			return
+		}
+		if res, err := http.Get(img.Url); err != nil {
+			c.AbortWithError(res.StatusCode, err)
+		} else if binary, err := ioutil.ReadAll(res.Body); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		} else {
+			c.Data(http.StatusOK, res.Header.Get("Content-Type"), binary)
+			res.Body.Close()
 		}
 	})
 

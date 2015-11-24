@@ -8,7 +8,7 @@
 #preview-wrap {
   position: relative;
 }
-#guide {
+.canvas-layer {
   z-index: -1;
   position: absolute;
   left: 0;
