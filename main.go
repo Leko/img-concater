@@ -24,6 +24,7 @@ func main() {
 
 	router.Static("/css", "./assets/dist/css")
 	router.Static("/js", "./assets/dist/js")
+	router.Static("/img", "./assets/dist/img")
 	router.Static("/fonts", "./assets/fonts")
 	router.LoadHTMLGlob("templates/*")
 

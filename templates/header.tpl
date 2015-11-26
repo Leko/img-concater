@@ -27,6 +27,9 @@
   left: 0;
   right: 0;
 }
+.guide {
+  background-image: url(/img/bg.png);
+}
 .loading i {
   position: absolute;
   top: 50%;
