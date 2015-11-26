@@ -191,6 +191,16 @@ class ImageItem extends React.Component {
     r.readAsArrayBuffer(file);
   }
 
+  handleUp() {
+    // 0始まりに直す
+    this.props.onMove(this.props.index - 1, -1);
+  }
+
+  handleDown() {
+    // 0始まりに直す
+    this.props.onMove(this.props.index - 1, 1);
+  }
+
   /**
    * @return ReactElements
    */
@@ -208,32 +218,41 @@ class ImageItem extends React.Component {
 
     return (
       <li>
-        <div className="pull-right">
+        <div className="row">
+          <div className="col-xs-11 col-sm-11 col-md-11">
+            <ul className="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" className="active">
+                <a href={"#via-url-" + this.props.index} tabIndex="-1" aria-controls="via-url" role="tab" data-toggle="tab">URL</a>
+              </li>
+              <li role="presentation">
+                <a href={"#via-file-" + this.props.index} tabIndex="-1" aria-controls="via-file" role="tab" data-toggle="tab">File</a>
+              </li>
+            </ul>
+
+            <div className="tab-content">
+              <div role="tabpanel" className="tab-pane active" id={"via-url-" + this.props.index}>
+                <FormGroup error={this.state.error} success={this.state.completed}>
+                  <input type="url" className="form-control" placeholder="http://example.com..." onChange={this.handleUrlChange.bind(this)} required />
+                </FormGroup>
+              </div>
+              <div role="tabpanel" className="tab-pane" id={"via-file-" + this.props.index}>
+                <FormGroup error={this.state.error} success={this.state.completed}>
+                  <input type="file" onChange={this.handleFileChange.bind(this)} required />
+                </FormGroup>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="resource-toolbar">
           <button type="button" tabIndex="-1" className="close" aria-label="Close" onClick={this.handleClose.bind(this)}>
             <span aria-hidden="true">&times;</span>
           </button>
-        </div>
-        <label>画像{this.props.index}</label>
-        <ul className="nav nav-tabs nav-justified" role="tablist">
-          <li role="presentation" className="active">
-            <a href={"#via-url-" + this.props.index} tabIndex="-1" aria-controls="via-url" role="tab" data-toggle="tab">URL</a>
-          </li>
-          <li role="presentation">
-            <a href={"#via-file-" + this.props.index} tabIndex="-1" aria-controls="via-file" role="tab" data-toggle="tab">アップロード</a>
-          </li>
-        </ul>
-
-        <div className="tab-content">
-          <div role="tabpanel" className="tab-pane active" id={"via-url-" + this.props.index}>
-            <FormGroup error={this.state.error} success={this.state.completed}>
-              <input type="url" className="form-control" placeholder="http://example.com..." onChange={this.handleUrlChange.bind(this)} required />
-            </FormGroup>
-          </div>
-          <div role="tabpanel" className="tab-pane" id={"via-file-" + this.props.index}>
-            <FormGroup error={this.state.error} success={this.state.completed}>
-              <input type="file" onChange={this.handleFileChange.bind(this)} required />
-            </FormGroup>
-          </div>
+          <button type="button" tabIndex="-1" className="close" aria-label="Up" onClick={this.handleUp.bind(this)}>
+            <span aria-hidden="true">&#x25B2;</span>
+          </button>
+          <button type="button" tabIndex="-1" className="close" aria-label="Down" onClick={this.handleDown.bind(this)}>
+            <span aria-hidden="true">&#x25BC;</span>
+          </button>
         </div>
         <hr/>
       </li>
@@ -456,8 +475,21 @@ class App extends React.Component {
 
     removed[0].destroy();
     this.setState({images: copy});
+  }
 
-    setTimeout(() => this.handleRefresh.bind(this));
+  // direction: 1 or -1
+  handleMove(index, direction) {
+    if(index + direction < 0 || index + direction >= this.state.images.length) {
+      return;
+    }
+
+    var clone = this.state.images.slice();
+    var tmp = clone[index];
+    clone[index] = clone[index + direction];
+    clone[index + direction] = tmp;
+
+    this.setState({ images: clone });
+    this.handleRefresh();
   }
 
   handleRefresh() {
@@ -494,7 +526,7 @@ class App extends React.Component {
       <div className="row">
         <div className="col-md-3">
           <ul id="resources">{this.state.images.map((img, i) => {
-            return (<ImageItem key={img.uid} img={img} index={i+1} onClose={this.handleClose.bind(this)} />);
+            return (<ImageItem key={img.uid} img={img} index={i+1} onClose={this.handleClose.bind(this)} onMove={this.handleMove.bind(this)} />);
           })}</ul>
 
           <div className="btn-toolbar" role="toolbar" aria-label="toolbar">

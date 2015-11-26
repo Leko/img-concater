@@ -29,7 +29,25 @@
   padding: 0;
 }
 #resources li {
+  position: relative;
   list-style-type: none;
+}
+#resources li hr {
+  margin-top: 5px;
+}
+.resource-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+}
+.resource-toolbar button {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+.resource-toolbar button span {
+  font-size: 20px;
 }
 .overlay {
   position: fixed;
