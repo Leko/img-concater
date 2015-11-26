@@ -56,8 +56,8 @@ class ImgEntity {
     this.img.src = window.URL.createObjectURL(blob);
 
     return new Promise((resolve, reject) => {
-      this.img.onload = resolve;
-      this.img.onerror = reject;
+      this.img.addEventListener('load', resolve, false);
+      this.img.addEventListener('error', reject, false);
     });
   }
 
@@ -66,7 +66,8 @@ class ImgEntity {
    */
   destroy() {
     // http://hakuhin.jp/js/blob_url_scheme.html#BLOB_URL_SCHEME_01
-    window.URL.createObjectURL(this.img.src);
+    window.URL.revokeObjectURL(this.img.src);
+    this.img.src = '';
   }
 
   /**
@@ -416,16 +417,31 @@ class App extends React.Component {
    */
   constructor(props) {
     super(props);
+
+    var defaultInputs = 3;
+    var images = [];
+
+    while(defaultInputs--) {
+      images.push(this.getEntity());
+    }
     this.state = {
-      images: [new ImgEntity, new ImgEntity, new ImgEntity, ],
+      images,
     };
+  }
+
+  getEntity() {
+    var entity = new ImgEntity();
+    entity.img.addEventListener('load', this.handleRefresh.bind(this), false);
+    entity.img.addEventListener('error', this.handleRefresh.bind(this), false);
+
+    return entity;
   }
 
   /**
    * @return ReactElements
    */
-  handleClick() {
-    var images = this.state.images.concat([new ImgEntity]);
+  handleAddInput() {
+    var images = this.state.images.concat([this.getEntity()]);
     this.setState({images: images});
   }
 
@@ -436,9 +452,12 @@ class App extends React.Component {
   handleClose(img) {
     var idx = this.state.images.indexOf(img);
     var copy = this.state.images.slice();
-    copy.splice(idx, 1);
+    var removed = copy.splice(idx, 1);
 
+    removed[0].destroy();
     this.setState({images: copy});
+
+    setTimeout(() => this.handleRefresh.bind(this));
   }
 
   handleRefresh() {
@@ -482,7 +501,7 @@ class App extends React.Component {
 
           <div className="clearfix">
             <div className="pull-right">
-              <button id="more" className="btn btn-primary" onClick={this.handleClick.bind(this)}>+</button>
+              <button id="more" className="btn btn-primary" onClick={this.handleAddInput.bind(this)}>+</button>
             </div>
           </div>
         </div>
@@ -492,9 +511,6 @@ class App extends React.Component {
           <h2>
             プレビュー
             <div className="pull-right">
-              <button className="btn btn-default" onClick={this.handleRefresh.bind(this)}>
-                <i className="glyphicon glyphicon-refresh"></i>
-              </button>
               <button className="btn btn-default" onClick={this.handleExport.bind(this)}>
                 ダウンロードする
                 <i className="glyphicon glyphicon-download-alt"></i>
