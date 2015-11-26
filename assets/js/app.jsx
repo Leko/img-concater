@@ -300,7 +300,7 @@ class Preview extends React.Component {
    */
   render() {
     return (
-      <canvas className="canvas-layer guide" ref="imageList" width={this.state.width} height={this.state.height}></canvas>
+      <canvas ref="imageList" width={this.state.width} height={this.state.height}></canvas>
     );
   }
 }
@@ -359,7 +359,7 @@ class Guide extends React.Component {
    */
   render() {
     return (
-      <canvas ref="canvas" key={this.props.id} width={this.state.width} height={this.state.height}></canvas>
+      <canvas className="canvas-layer guide" ref="canvas" key={this.props.id} width={this.state.width} height={this.state.height}></canvas>
     );
   }
 }
