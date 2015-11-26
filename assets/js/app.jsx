@@ -493,8 +493,6 @@ class App extends React.Component {
     return (
       <div className="row">
         <div className="col-md-3">
-          <p>画像URLを入力して下さい。上から順に画像を結合します。</p>
-
           <ul id="resources">{this.state.images.map((img, i) => {
             return (<ImageItem key={img.uid} img={img} index={i+1} onClose={this.handleClose.bind(this)} />);
           })}</ul>
