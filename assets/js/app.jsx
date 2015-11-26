@@ -499,25 +499,23 @@ class App extends React.Component {
             return (<ImageItem key={img.uid} img={img} index={i+1} onClose={this.handleClose.bind(this)} />);
           })}</ul>
 
-          <div className="clearfix">
-            <div className="pull-right">
+          <div className="btn-toolbar" role="toolbar" aria-label="toolbar">
+            <div className="btn-group" role="group" aria-label="操作">
               <button id="more" className="btn btn-primary" onClick={this.handleAddInput.bind(this)}>+</button>
+            </div>
+            <div className="btn-group" role="group" aria-label="ダウンロード">
+              <button className="btn btn-default" onClick={this.handleExport.bind(this)}>
+                ダウンロードする
+                <i className="glyphicon glyphicon-download-alt"></i>
+              </button>
             </div>
           </div>
         </div>
 
         <div className="col-md-9">
           <Notifications ref="notifications" />
-          <h2>
-            プレビュー
-            <div className="pull-right">
-              <button className="btn btn-default" onClick={this.handleExport.bind(this)}>
-                ダウンロードする
-                <i className="glyphicon glyphicon-download-alt"></i>
-              </button>
-            </div>
-          </h2>
           <div id="preview-wrap">
+            <h2>プレビュー</h2>
             <Preview images={this.state.images} ref="preview" onError={this.handlePreviewError.bind(this)} />
             <Guide id={uid()} />
           </div>

@@ -8,6 +8,17 @@
 #preview-wrap {
   position: relative;
 }
+#preview-wrap h2 {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 5px 10px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #000;
+}
 .canvas-layer {
   z-index: -1;
   position: absolute;
