@@ -208,17 +208,17 @@ class ImageItem extends React.Component {
     return (
       <li>
         <div className="pull-right">
-          <button type="button" className="close" aria-label="Close" onClick={this.handleClose.bind(this)}>
+          <button type="button" tabIndex="-1" className="close" aria-label="Close" onClick={this.handleClose.bind(this)}>
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <label>画像{this.props.index}</label>
         <ul className="nav nav-tabs nav-justified" role="tablist">
           <li role="presentation" className="active">
-            <a href={"#via-url-" + this.props.index} aria-controls="via-url" role="tab" data-toggle="tab">URL</a>
+            <a href={"#via-url-" + this.props.index} tabIndex="-1" aria-controls="via-url" role="tab" data-toggle="tab">URL</a>
           </li>
           <li role="presentation">
-            <a href={"#via-file-" + this.props.index} aria-controls="via-file" role="tab" data-toggle="tab">アップロード</a>
+            <a href={"#via-file-" + this.props.index} tabIndex="-1" aria-controls="via-file" role="tab" data-toggle="tab">アップロード</a>
           </li>
         </ul>
 
@@ -284,7 +284,9 @@ class Preview extends React.Component {
           });
 
           if(height - padding > Guide.MAX_HEIGHT) {
-            alert('画像が1200pxより大きいです。赤線を確認して下さい');
+            this.props.onError(new Error('画像が1200pxより大きいです。赤線を確認して下さい'));
+          } else {
+            this.props.onError(null);
           }
 
           resolve();
@@ -366,6 +368,45 @@ class Guide extends React.Component {
 Guide.MAX_WIDTH = 640;
 Guide.MAX_HEIGHT = 1200;
 
+class Notifications extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      errors: []
+    };
+  }
+
+  reset() {
+    this.setState({ errors: [] });
+  }
+
+  append(message) {
+    var idx = this.state.errors.indexOf(message);
+    var clone = this.state.errors.slice();
+
+    if(idx >= 0) {
+      var poped = clone.splice(idx, 1);
+      clone.unshift(poped[0]);
+    } else {
+      clone.push(message)
+    }
+
+    this.setState({ errors: clone });
+  }
+
+  render() {
+    return (
+      <div className="notifications">
+        {this.state.errors.map((msg, i) => {
+          return (<div key={i} className="alert alert-warning">
+            {msg}
+          </div>);
+        })}
+      </div>
+    );
+  }
+}
+
 /**
  * @class App
  */
@@ -417,6 +458,14 @@ class App extends React.Component {
       });
   }
 
+  handlePreviewError(e) {
+    if(e === null) {
+      this.refs.notifications.reset();
+    } else {
+      this.refs.notifications.append(e.message);
+    }
+  }
+
   /**
    * @return ReactElements
    */
@@ -439,6 +488,7 @@ class App extends React.Component {
         </div>
 
         <div className="col-md-9">
+          <Notifications ref="notifications" />
           <h2>
             プレビュー
             <div className="pull-right">
@@ -452,7 +502,7 @@ class App extends React.Component {
             </div>
           </h2>
           <div id="preview-wrap">
-            <Preview images={this.state.images} ref="preview" />
+            <Preview images={this.state.images} ref="preview" onError={this.handlePreviewError.bind(this)} />
             <Guide id={uid()} />
           </div>
         </div>
