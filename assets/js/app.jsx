@@ -263,11 +263,11 @@ class Preview extends React.Component {
 
     var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
     var offset = 0;
-    var height = this.props.images.reduce(function(memo, imgEntity) {
+    var height = this.props.images.reduce(function(memo, imgEntity, i) {
       if(!imgEntity.ready()) return memo;
 
       var mag = Guide.MAX_WIDTH / imgEntity.img.width;
-      return memo + (imgEntity.img.height * mag) + padding;
+      return memo + (imgEntity.img.height * mag) + (i === 0 ? 0 : padding);
     }, 0);
 
     this.setState({ width: Guide.MAX_WIDTH, height: height });
