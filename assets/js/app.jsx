@@ -247,12 +247,6 @@ class ImageItem extends React.Component {
           <button type="button" tabIndex="-1" className="close" aria-label="Close" onClick={this.handleClose.bind(this)}>
             <span aria-hidden="true">&times;</span>
           </button>
-          <button type="button" tabIndex="-1" className="close" aria-label="Up" onClick={this.handleUp.bind(this)}>
-            <span aria-hidden="true">&#x25B2;</span>
-          </button>
-          <button type="button" tabIndex="-1" className="close" aria-label="Down" onClick={this.handleDown.bind(this)}>
-            <span aria-hidden="true">&#x25BC;</span>
-          </button>
         </div>
         <hr/>
       </li>
