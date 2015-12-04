@@ -94,11 +94,9 @@ class FormGroup extends React.Component {
     var urlClasses = ['form-group'];
 
     if(this.props.error) {
-      urlClasses.push('has-feedback');
       urlClasses.push('has-error');
     }
     if(this.props.success) {
-      urlClasses.push('has-feedback');
       urlClasses.push('has-success');
     }
 
@@ -109,12 +107,6 @@ class FormGroup extends React.Component {
           ? (<p className="help-block">
               <span className="text-danger">{this.props.error}</span>
             </p>)
-          : ''}
-        {this.props.error
-          ? <span className="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-          : ''}
-        {this.props.success
-          ? <span className="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
           : ''}
       </div>
     );
@@ -201,21 +193,15 @@ class ImageItem extends React.Component {
     this.props.onMove(this.props.index - 1, 1);
   }
 
+  handleClear() {
+    this.refs.url.value = '';
+    this.handleUrlChange({ target: this.refs.url });
+  }
+
   /**
    * @return ReactElements
    */
   render() {
-    var urlClasses = ['form-group'];
-
-    if(this.state.error) {
-      urlClasses.push('has-feedback');
-      urlClasses.push('has-error');
-    }
-    if(this.state.completed) {
-      urlClasses.push('has-feedback');
-      urlClasses.push('has-success');
-    }
-
     return (
       <li>
         <div className="row">
@@ -232,7 +218,10 @@ class ImageItem extends React.Component {
             <div className="tab-content">
               <div role="tabpanel" className="tab-pane active" id={"via-url-" + this.props.index}>
                 <FormGroup error={this.state.error} success={this.state.completed}>
-                  <input type="url" className="form-control" placeholder="http://example.com..." onChange={this.handleUrlChange.bind(this)} required />
+                  <div className="input-group">
+                    <input type="url" ref="url" className="form-control" placeholder="http://example.com..." onChange={this.handleUrlChange.bind(this)} required />
+                    <div className="input-group-addon" onClick={this.handleClear.bind(this)}>Clear</div>
+                  </div>
                 </FormGroup>
               </div>
               <div role="tabpanel" className="tab-pane" id={"via-file-" + this.props.index}>

@@ -35,6 +35,9 @@
 #resources li hr {
   margin-top: 5px;
 }
+#resources .input-group-addon {
+  cursor: pointer;
+}
 .resource-toolbar {
   position: absolute;
   top: 0;
