@@ -428,6 +428,7 @@ class App extends React.Component {
     }
     this.state = {
       images,
+      padding: 0,
     };
   }
 
@@ -476,12 +477,12 @@ class App extends React.Component {
   }
 
   handleRefresh() {
-    this.refs.preview.draw();
+    this.refs.preview.draw(this.state.padding);
   }
 
   handleExport() {
     // 強制的に再描画をかけて再DL
-    this.refs.preview.draw()
+    this.refs.preview.draw(this.state.padding)
       .then(() => {
         var canvas = ReactDOM.findDOMNode(this.refs.preview);
         var type = 'image/jpeg';
@@ -498,6 +499,11 @@ class App extends React.Component {
     } else {
       this.refs.notifications.append(e.message);
     }
+  }
+
+  handlePaddingChange(e) {
+    this.setState({ padding: +e.target.value });
+    setTimeout(this.handleRefresh.bind(this));
   }
 
   /**
@@ -523,6 +529,18 @@ class App extends React.Component {
               </button>
             </div>
           </div>
+
+          <h3>設定</h3>
+          <div className="form-horizontal">
+            <FormGroup>
+              <label htmlFor="" className="control-label col-md-4">画像間の余白</label>
+              <div className="input-group col-md-8" role="group" aria-label="設定">
+                <input type="number" step="1" min="0" ref="configPadding" className="form-control" onChange={this.handlePaddingChange.bind(this)} />
+                <div className="input-group-addon">px</div>
+              </div>
+            </FormGroup>
+          </div>
+
         </div>
 
         <div className="col-md-9">
