@@ -258,7 +258,7 @@ class Preview extends React.Component {
     };
   }
 
-  draw(padding) {
+  draw(padding, bgColor) {
     padding = padding || 0;
 
     var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
@@ -277,6 +277,8 @@ class Preview extends React.Component {
           var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
 
           ctx.clearRect(0, 0, Guide.MAX_WIDTH, height);
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, Guide.MAX_WIDTH, height);
           this.props.images.forEach(function(imgEntity, i) {
             if(!imgEntity.ready()) return;
 
@@ -429,6 +431,7 @@ class App extends React.Component {
     this.state = {
       images,
       padding: 0,
+      bgColor: '#ffffff',
     };
   }
 
@@ -477,12 +480,12 @@ class App extends React.Component {
   }
 
   handleRefresh() {
-    this.refs.preview.draw(this.state.padding);
+    this.refs.preview.draw(this.state.padding, this.state.bgColor);
   }
 
   handleExport() {
     // 強制的に再描画をかけて再DL
-    this.refs.preview.draw(this.state.padding)
+    this.refs.preview.draw(this.state.padding, this.state.bgColor)
       .then(() => {
         var canvas = ReactDOM.findDOMNode(this.refs.preview);
         var type = 'image/jpeg';
