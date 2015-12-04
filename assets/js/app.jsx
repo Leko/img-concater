@@ -568,7 +568,7 @@ class App extends React.Component {
               <label htmlFor="" className="control-label col-md-4">画像間の余白</label>
               <div className="col-md-8" role="group" aria-label="設定">
                 <div className="input-group">
-                  <input type="number" step="1" min="0" placeholder="0" ref="configPadding" className="form-control" onChange={this.handlePaddingChange.bind(this)} />
+                  <input type="number" step="1" min="0" defaultValue="0" ref="configPadding" className="form-control" onChange={this.handlePaddingChange.bind(this)} />
                   <div className="input-group-addon">px</div>
                 </div>
               </div>
@@ -576,7 +576,7 @@ class App extends React.Component {
             <FormGroup>
               <label htmlFor="" className="control-label col-md-4">背景色</label>
               <div className="col-md-8" role="group" aria-label="設定">
-                <input type="text" placeholder="#ffffff" ref="configBackground" className="form-control" onChange={this.handleBackgroundChange.bind(this)} />
+                <input type="text" defaultValue="#ffffff" ref="configBackground" className="form-control" onChange={this.handleBackgroundChange.bind(this)} />
               </div>
             </FormGroup>
           </div>
