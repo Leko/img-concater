@@ -16,6 +16,22 @@ function uid() {
   return uid._idx++;
 }
 
+class Color {
+  // http://stackoverflow.com/questions/2819619/validating-html-color-codes-js
+  static valid(color) {
+    var litmus = 'black';
+    var d = document.createElement('div');
+    d.style.color = litmus;
+    d.style.color = color;
+    //Element's style.color will be reverted to litmus or set to '' if an invalid color is given
+    if( color !== litmus && (d.style.color === litmus || d.style.color === '')){
+        return false;
+    }
+
+    return true;
+  }
+}
+
 class Downloader {
   static download(uri, fileName) {
     var pseudoLink = document.createElement('a');
@@ -263,11 +279,17 @@ class Preview extends React.Component {
 
     var ctx = ReactDOM.findDOMNode(this.refs.imageList).getContext('2d');
     var offset = 0;
+    var isFirst = true;
     var height = this.props.images.reduce(function(memo, imgEntity, i) {
       if(!imgEntity.ready()) return memo;
 
       var mag = Guide.MAX_WIDTH / imgEntity.img.width;
-      return memo + (imgEntity.img.height * mag) + (i === 0 ? 0 : padding);
+      var pad = padding;
+      if(isFirst) {
+        pad = 0;
+        isFirst = false;
+      }
+      return memo + (imgEntity.img.height * mag) + pad;
     }, 0);
 
     this.setState({ width: Guide.MAX_WIDTH, height: height });
@@ -509,6 +531,13 @@ class App extends React.Component {
     setTimeout(this.handleRefresh.bind(this));
   }
 
+  handleBackgroundChange(e) {
+    if(Color.valid(e.target.value)) {
+      this.setState({ bgColor: e.target.value });
+      setTimeout(this.handleRefresh.bind(this));
+    }
+  }
+
   /**
    * @return ReactElements
    */
@@ -537,9 +566,17 @@ class App extends React.Component {
           <div className="form-horizontal">
             <FormGroup>
               <label htmlFor="" className="control-label col-md-4">画像間の余白</label>
-              <div className="input-group col-md-8" role="group" aria-label="設定">
-                <input type="number" step="1" min="0" ref="configPadding" className="form-control" onChange={this.handlePaddingChange.bind(this)} />
-                <div className="input-group-addon">px</div>
+              <div className="col-md-8" role="group" aria-label="設定">
+                <div className="input-group">
+                  <input type="number" step="1" min="0" placeholder="0" ref="configPadding" className="form-control" onChange={this.handlePaddingChange.bind(this)} />
+                  <div className="input-group-addon">px</div>
+                </div>
+              </div>
+            </FormGroup>
+            <FormGroup>
+              <label htmlFor="" className="control-label col-md-4">背景色</label>
+              <div className="col-md-8" role="group" aria-label="設定">
+                <input type="text" placeholder="#ffffff" ref="configBackground" className="form-control" onChange={this.handleBackgroundChange.bind(this)} />
               </div>
             </FormGroup>
           </div>
