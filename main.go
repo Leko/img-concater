@@ -21,6 +21,7 @@ func main() {
 	migrate()
 
 	router := gin.Default()
+	router.Use(noFrame())
 
 	router.Static("/css", "./assets/dist/css")
 	router.Static("/js", "./assets/dist/js")
@@ -46,6 +47,14 @@ func main() {
 	})
 
 	http.ListenAndServe(":"+port(), nosurf.New(router))
+}
+
+// https://developer.mozilla.org/ja/docs/HTTP/X-Frame-Options
+func noFrame() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+		c.Header("X-Frame-Options", "SAMEORIGIN")
+	}
 }
 
 func port() string {
