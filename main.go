@@ -52,8 +52,8 @@ func main() {
 // https://developer.mozilla.org/ja/docs/HTTP/X-Frame-Options
 func noFrame() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Next()
 		c.Header("X-Frame-Options", "SAMEORIGIN")
+		c.Next()
 	}
 }
 
