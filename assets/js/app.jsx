@@ -581,6 +581,15 @@ class App extends React.Component {
             </FormGroup>
           </div>
 
+          <footer>
+            <h4>免責事項</h4>
+            <p>当サービスは、当サービスを使用して作成された画像の一切の著作権に関知しません。<br/>
+            ご利用の際はご自身の著作物である画像のみ使用して下さい。<br/>
+            また、当サービスを利用したことにより発生した問題の一切の責任を負いません。<br/>
+            あらかじめご了承下さい。</p>
+
+            <small>&copy; 2015 <a href="http://leko.jp">Leko</a></small>
+          </footer>
         </div>
 
         <div className="col-md-9">
